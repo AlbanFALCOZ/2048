@@ -6,5 +6,11 @@ class Case:
         self.old_x = x
         self.old_y = y
         self.val = val
+        self.hasMerged = False
+
+    def can_merge(self,other):
+        if (isinstance(other,Case)):
+            return not(self.hasMerged) and not(other.hasMerged) and self.val == other.val and self.val != 1
+        return False
 
     
