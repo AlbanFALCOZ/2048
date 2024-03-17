@@ -149,7 +149,7 @@ def tab_move_left():
 
 def tab_move_up():
     for i in range(4):
-        for j in range(3,-1,-1):
+        for j in range(2,-1,-1):
             indice = j
             while indice >= 1 :
                 if tab[i][indice].can_merge(tab[i][indice-1]):
@@ -174,7 +174,7 @@ def tab_move_down():
                     indice = indice + 1
                 elif tab[i][indice].val != 1 and tab[i][indice+1].val == 1:
                     tab[i][indice+1].val,tab[i][indice].val = tab[i][indice].val, tab[i][indice+1].val
-                    indice = indice - 1
+                    indice = indice + 1
                 else :
                     indice = 3
     draw_grid()
