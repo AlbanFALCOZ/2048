@@ -149,7 +149,7 @@ def tab_move_left():
 
 def tab_move_up():
     for i in range(4):
-        for j in range(2,-1,-1):
+        for j in range(1,4):
             indice = j
             while indice >= 1 :
                 if tab[i][indice].can_merge(tab[i][indice-1]):
@@ -166,7 +166,7 @@ def tab_move_up():
 
 def tab_move_down():
     for i in range(4):
-        for j in range(3):
+        for j in range(2,-1,-1):
             indice = j
             while indice < 3 :
                 if tab[i][indice].can_merge(tab[i][indice+1]):
