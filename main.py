@@ -4,7 +4,8 @@ from Case import Case
 BLOCK_WIDTH = 200
 BLOCK_HEIGHT = 200
 GRID_CORNER_LEFT_X = 500
-GRID_CORNER_LEFT_y = 150
+GRID_CORNER_LEFT_Y = 100
+GRID_GAP = 15
 
 BUTTON_QUIT_X = 100
 BUTTON_QUIT_Y = 900
@@ -53,12 +54,12 @@ def update_all():
 
 def draw_grid():
     SCREEN.fill("white")
-    background_rect = pygame.Rect(GRID_CORNER_LEFT_X-15,GRID_CORNER_LEFT_y-15,BLOCK_WIDTH*4+15,BLOCK_HEIGHT*4+15)
+    background_rect = pygame.Rect(GRID_CORNER_LEFT_X,GRID_CORNER_LEFT_Y,BLOCK_WIDTH*4+GRID_GAP*5,BLOCK_HEIGHT*4+GRID_GAP*5)
     pygame.draw.rect(SCREEN,"black",background_rect)
     for i in range(4):
         for j in range(4):
             tab[i][j].hasMerged = False
-            rect = pygame.Rect(GRID_CORNER_LEFT_X+i*BLOCK_WIDTH,GRID_CORNER_LEFT_y+j*BLOCK_HEIGHT,BLOCK_WIDTH*0.92,BLOCK_HEIGHT*0.92)
+            rect = pygame.Rect(GRID_CORNER_LEFT_X+i*(BLOCK_WIDTH)+(i+1)*GRID_GAP,GRID_CORNER_LEFT_Y+j*(BLOCK_HEIGHT)+(j+1)*GRID_GAP,BLOCK_WIDTH,BLOCK_HEIGHT)
             pygame.draw.rect(SCREEN,LISTE_COLOR[int(math.log2(tab[i][j].val))],rect)
 
 
@@ -75,26 +76,28 @@ def draw_case_value():
     for i in range(4):
         for j in range(4):
             if tab[i][j].val != 1 :
-                TEXT_GAP = -10*int(math.log10(tab[i][j].val))
-                font = pygame.font.SysFont("consolas",40)
-                value_grid = font.render(str(tab[i][j].val), True, (0,0,0))
-                SCREEN.blit(value_grid, dest=(GRID_CORNER_LEFT_X+BLOCK_WIDTH/2.5+i*BLOCK_WIDTH+TEXT_GAP,GRID_CORNER_LEFT_y+BLOCK_HEIGHT/2.6+j*BLOCK_HEIGHT))
+                
+                font = pygame.font.SysFont("consolas",50)
+                text = font.render(str(tab[i][j].val), True, (0,0,0))
+                text_rect = text.get_rect(center=(GRID_CORNER_LEFT_X+BLOCK_WIDTH/2.6+i*(BLOCK_WIDTH+GRID_GAP),GRID_CORNER_LEFT_Y+BLOCK_HEIGHT/2.6+j*(BLOCK_HEIGHT+GRID_GAP)))
+                #(GRID_CORNER_LEFT_X+BLOCK_WIDTH/2.5+i*BLOCK_WIDTH+TEXT_GAP,GRID_CORNER_LEFT_Y+BLOCK_HEIGHT/2.6+j*BLOCK_HEIGHT)
+                SCREEN.blit(text, text_rect)
 
 def spaw_case():
     if check_tab_full():
         return
     i, j = random.randint(0,3),random.randint(0,3)
-    while (tab[i][j].val != 1):
+    while (tab[i][j].val != 1): 
         i, j = random.randint(0,3),random.randint(0,3)
-    val = 2**random.randint(1,2)
+    val = 2**random.randint(1,10)
     
     for k in range(40):
-        rect = pygame.Rect(GRID_CORNER_LEFT_X+i*BLOCK_WIDTH-BLOCK_WIDTH/2*k/40+BLOCK_WIDTH/2,GRID_CORNER_LEFT_y+j*BLOCK_HEIGHT-BLOCK_HEIGHT/2*k/40+BLOCK_HEIGHT/2,(BLOCK_WIDTH*0.92)*k/40,(BLOCK_HEIGHT*0.92)*k/40)
+        rect = pygame.Rect(GRID_CORNER_LEFT_X+i*(BLOCK_WIDTH+GRID_GAP)-BLOCK_WIDTH/2*k/40+BLOCK_WIDTH/2,GRID_CORNER_LEFT_Y+j*(BLOCK_HEIGHT+GRID_GAP)-BLOCK_HEIGHT/2*k/40+BLOCK_HEIGHT/2,(BLOCK_WIDTH+GRID_GAP)*k/40,(BLOCK_HEIGHT+GRID_GAP)*k/40)
         pygame.draw.rect(SCREEN,LISTE_COLOR[int(math.log2(val))],rect)
         draw_quit_button()
         draw_case_value()
         pygame.display.flip()
-        time.sleep(0.0002)
+        #time.sleep(0.0002)
     tab[i][j].val = val
 
 
