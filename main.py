@@ -12,6 +12,11 @@ BUTTON_QUIT_Y = 900
 BUTTON_QUIT_WIDTH = 200
 BUTTON_QUIT_HEIGTH = 100
 
+BUTTON_START_X = 100
+BUTTON_START_Y = 700
+BUTTON_START_WIDTH = 200
+BUTTON_START_HEIGTH = 100
+
 LISTE_COLOR = ["lightgrey","#eee4da","#ede0c8",'#f2b179',"#f59563","#f67c5f","#f65e3b","#edcf72","#edcc61","#edc850","#edc53f","#edc22e"]
 
 pygame.init()
@@ -23,10 +28,12 @@ tab = [[Case(), Case(), Case(), Case()] for _ in range(4)]
 def main():
     continue_game = True
     update_all()
+    spaw_case()
     while continue_game:
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 check_click_quit_button()
+                check_click_start_button()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_DOWN :
                     tab_move_down()
@@ -47,6 +54,7 @@ def main():
 def update_all():
     draw_grid()
     draw_quit_button()
+    draw_start_button()
     draw_case_value()
 
 
@@ -69,16 +77,21 @@ def draw_quit_button():
     text_surface = font.render("Quit", True, (0, 0, 0))
     SCREEN.blit(text_surface, dest=(BUTTON_QUIT_X+BUTTON_QUIT_WIDTH/3.3,BUTTON_QUIT_Y+BUTTON_QUIT_HEIGTH/3))
 
+def draw_start_button():
+    background_rect = pygame.Rect(BUTTON_START_X,BUTTON_START_Y,BUTTON_START_WIDTH,BUTTON_START_HEIGTH)
+    pygame.draw.rect(SCREEN,"grey",background_rect)
+    font = pygame.font.Font(pygame.font.get_default_font(),36)
+    text_surface = font.render("Start", True, (0, 0, 0))
+    SCREEN.blit(text_surface, dest=(BUTTON_START_X+BUTTON_START_WIDTH/3.3,BUTTON_START_Y+BUTTON_START_HEIGTH/3))
+
 
 def draw_case_value():
     for i in range(4):
         for j in range(4):
             if tab[i][j].val != 1 :
-                
                 font = pygame.font.SysFont("consolas",50)
                 text = font.render(str(tab[i][j].val), True, (0,0,0))
-                text_rect = text.get_rect(center=(GRID_CORNER_LEFT_X+BLOCK_WIDTH/2.6+i*(BLOCK_WIDTH+GRID_GAP),GRID_CORNER_LEFT_Y+BLOCK_HEIGHT/2.6+j*(BLOCK_HEIGHT+GRID_GAP)))
-                #(GRID_CORNER_LEFT_X+BLOCK_WIDTH/2.5+i*BLOCK_WIDTH+TEXT_GAP,GRID_CORNER_LEFT_Y+BLOCK_HEIGHT/2.6+j*BLOCK_HEIGHT)
+                text_rect = text.get_rect(center=(GRID_CORNER_LEFT_X+(i+1/2)*(BLOCK_WIDTH)+(i+1)*GRID_GAP,GRID_CORNER_LEFT_Y+(j+1/2)*(BLOCK_HEIGHT)+(j+1)*GRID_GAP))
                 SCREEN.blit(text, text_rect)
 
 def spaw_case():
@@ -87,12 +100,13 @@ def spaw_case():
     i, j = random.randint(0,3),random.randint(0,3)
     while (tab[i][j].val != 1): 
         i, j = random.randint(0,3),random.randint(0,3)
-    val = 2**random.randint(1,10)
+    val = (4)if(random.randint(0,2) == 2)else(2)
     
     for k in range(40):
         rect = pygame.Rect(GRID_CORNER_LEFT_X+i*(BLOCK_WIDTH+GRID_GAP)-BLOCK_WIDTH/2*k/40+BLOCK_WIDTH/2,GRID_CORNER_LEFT_Y+j*(BLOCK_HEIGHT+GRID_GAP)-BLOCK_HEIGHT/2*k/40+BLOCK_HEIGHT/2,(BLOCK_WIDTH+GRID_GAP)*k/40,(BLOCK_HEIGHT+GRID_GAP)*k/40)
         pygame.draw.rect(SCREEN,LISTE_COLOR[int(math.log2(val))],rect)
         draw_quit_button()
+        draw_start_button()
         draw_case_value()
         pygame.display.flip()
         #time.sleep(0.0002)
@@ -103,6 +117,19 @@ def check_click_quit_button():
     mouse_x, mouse_y = pygame.mouse.get_pos()
     if (mouse_x >= BUTTON_QUIT_X and mouse_x <= (BUTTON_QUIT_X + BUTTON_QUIT_WIDTH) and mouse_y >= BUTTON_QUIT_Y and mouse_y <= (BUTTON_QUIT_Y + BUTTON_QUIT_HEIGTH)):
         pygame.quit()
+
+def check_click_start_button():
+    mouse_x, mouse_y = pygame.mouse.get_pos()
+    if (mouse_x >= BUTTON_START_X and mouse_x <= (BUTTON_START_X + BUTTON_START_WIDTH) and mouse_y >= BUTTON_START_Y and mouse_y <= (BUTTON_START_Y + BUTTON_START_HEIGTH)):
+        
+        clear_tab()
+        draw_grid()
+        spaw_case()
+
+def clear_tab():
+    for i in range(4):
+        for j in range(4):
+            tab[i][j].val = 1
 
 
 def check_tab_full():
@@ -115,6 +142,7 @@ def check_tab_full():
 
 
 def tab_move_right():
+    Test = False
     for i in range(2,-1,-1):
         for j in range(4):
             indice = i
@@ -122,16 +150,20 @@ def tab_move_right():
                 if tab[indice][j].can_merge(tab[indice+1][j]):
                     merge_two_cells(tab[indice][j],tab[indice+1][j])
                     indice = indice + 1
+                    Test = True
                 elif tab[indice][j].val != 1 and tab[indice+1][j].val == 1:
                     tab[indice][j].val,tab[indice+1][j].val = tab[indice+1][j].val, tab[indice][j].val
                     indice = indice + 1
+                    Test = True
                 else :
                     indice = 3
     
     draw_grid()
-    spaw_case()
+    if Test:
+        spaw_case()
 
 def tab_move_left():
+    Test = False
     for i in range(1,4):
         for j in range(4):
             indice = i
@@ -139,16 +171,20 @@ def tab_move_left():
                 if tab[indice][j].can_merge(tab[indice-1][j]):
                     merge_two_cells(tab[indice][j],tab[indice-1][j])
                     indice = indice - 1
+                    Test = True
                 elif tab[indice][j].val != 1 and tab[indice-1][j].val == 1:
                     tab[indice][j].val,tab[indice-1][j].val = tab[indice-1][j].val, tab[indice][j].val
                     indice = indice - 1
+                    Test = True
                 else :
                     indice = 0
     draw_grid()
-    spaw_case()
+    if Test:
+        spaw_case()
 
 
 def tab_move_up():
+    Test = False
     for i in range(4):
         for j in range(1,4):
             indice = j
@@ -156,16 +192,20 @@ def tab_move_up():
                 if tab[i][indice].can_merge(tab[i][indice-1]):
                     merge_two_cells(tab[i][indice],tab[i][indice-1])
                     indice = indice - 1
+                    Test = True
                 elif tab[i][indice].val != 1 and tab[i][indice-1].val == 1:
                     tab[i][indice-1].val,tab[i][indice].val = tab[i][indice].val, tab[i][indice-1].val
                     indice = indice - 1
+                    Test = True
                 else :
                     indice = 0
     draw_grid()
-    spaw_case()
+    if Test :
+        spaw_case()
 
 
 def tab_move_down():
+    Test = False
     for i in range(4):
         for j in range(2,-1,-1):
             indice = j
@@ -173,13 +213,16 @@ def tab_move_down():
                 if tab[i][indice].can_merge(tab[i][indice+1]):
                     merge_two_cells(tab[i][indice],tab[i][indice+1])
                     indice = indice + 1
+                    Test = True
                 elif tab[i][indice].val != 1 and tab[i][indice+1].val == 1:
                     tab[i][indice+1].val,tab[i][indice].val = tab[i][indice].val, tab[i][indice+1].val
                     indice = indice + 1
+                    Test = True
                 else :
                     indice = 3
     draw_grid()
-    spaw_case()
+    if Test :
+        spaw_case()
 
 
 def merge_two_cells(cell,cell_dest):
