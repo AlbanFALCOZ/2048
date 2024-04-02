@@ -20,8 +20,6 @@ SCREEN = pygame.display.set_mode(SIZE)
 
 tab = [[Case(), Case(), Case(), Case()] for _ in range(4)]
 
-
-
 def main():
     continue_game = True
     update_all()
@@ -29,14 +27,14 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 check_click_quit_button()
-            if event.type == pygame.KEYDOWN :
+            if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_DOWN :
                     tab_move_down()
-                elif event.key == pygame.K_RIGHT:
+                if event.key == pygame.K_RIGHT:
                     tab_move_right()
-                elif event.key == pygame.K_LEFT:
+                if event.key == pygame.K_LEFT:
                     tab_move_left()
-                elif event.key == pygame.K_UP:
+                if event.key == pygame.K_UP:
                     tab_move_up()
         
         
