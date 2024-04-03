@@ -17,28 +17,39 @@ BUTTON_START_Y = 700
 BUTTON_START_WIDTH = 200
 BUTTON_START_HEIGTH = 100
 
+IMAGE_SOUND_X = 150
+IMAGE_SOUND_Y = 500
+IMAGE_WIDTH = 100
+IMAGE_HEIGHT = 100
+
 LISTE_COLOR = ["lightgrey","#eee4da","#ede0c8",'#f2b179',"#f59563","#f67c5f","#f65e3b","#edcf72","#edcc61","#edc850","#edc53f","#edc22e"]
 
 pygame.init()
 SIZE = width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
 SCREEN = pygame.display.set_mode(SIZE)
 
+img = pygame.transform.scale(pygame.image.load("sound.png").convert(),(IMAGE_WIDTH,IMAGE_HEIGHT))
+
+music_on = True
+
 tab = [[Case(), Case(), Case(), Case()] for _ in range(4)]
 
 tab_old = copy.deepcopy(tab)
 
 def main():
-    continue_game = True
+    pygame.mixer.Channel(0).play(pygame.mixer.Sound("background.mp3"),loops=-1)
+    
     draw_grid()
     spaw_case()
     draw_buttons()
     update_grid()
-    
-    while continue_game:
+    SCREEN.blit(img, (IMAGE_SOUND_X, IMAGE_SOUND_Y))
+    while True:
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 check_click_quit_button()
                 check_click_start_button()
+                check_click_image_sound()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_DOWN :
                     tab_move_down()
@@ -50,11 +61,10 @@ def main():
                     tab_move_up()
         
         pygame.display.flip()
-        
-    pygame.quit()
 
 
 def draw_grid():
+    
     SCREEN.fill("white")
     background_rect = pygame.Rect(GRID_CORNER_LEFT_X,GRID_CORNER_LEFT_Y,BLOCK_WIDTH*4+GRID_GAP*5,BLOCK_HEIGHT*4+GRID_GAP*5)
     pygame.draw.rect(SCREEN,"black",background_rect)
@@ -67,7 +77,6 @@ def draw_grid():
 
 def update_grid():
     global tab_old
-    print_tab()
     for i in range(4):
         for j in range(4):
             tab[i][j].hasMerged = False
@@ -81,6 +90,16 @@ def update_grid():
                     SCREEN.blit(text, text_rect)
                 tab_old[i][j].val = tab[i][j].val
     pygame.display.flip()
+
+
+def draw_cases_value():
+    for i in range(4):
+        for j in range(4):
+            if (tab[i][j].val != 1):
+                font = pygame.font.SysFont("consolas",50)
+                text = font.render(str(tab[i][j].val), True, (0,0,0))
+                text_rect = text.get_rect(center=(GRID_CORNER_LEFT_X+(i+1/2)*(BLOCK_WIDTH)+(i+1)*GRID_GAP,GRID_CORNER_LEFT_Y+(j+1/2)*(BLOCK_HEIGHT)+(j+1)*GRID_GAP))
+                SCREEN.blit(text, text_rect)
 
 
 def draw_buttons():
@@ -127,6 +146,27 @@ def check_click_start_button():
         draw_grid()
         spaw_case()
 
+def check_click_image_sound():
+    global music_on
+    mouse_x, mouse_y = pygame.mouse.get_pos()
+    if (mouse_x >= IMAGE_SOUND_X and mouse_x <= (IMAGE_SOUND_X + IMAGE_WIDTH) and mouse_y >= (IMAGE_SOUND_Y) and mouse_y <= (IMAGE_SOUND_Y + IMAGE_HEIGHT)) :
+        if music_on :
+            pygame.mixer.Channel(0).pause()
+            path = "sound_off.jpg"
+            print("I'm pausing")
+        else :
+            pygame.mixer.Channel(0).unpause()
+            path = "sound.png"
+            print("I'm will play")
+        draw_grid()
+        draw_buttons()
+        draw_cases_value()
+        music_on = not(music_on)
+        img = pygame.transform.scale(pygame.image.load(path).convert(),(IMAGE_WIDTH,IMAGE_HEIGHT))
+        SCREEN.blit(img, (IMAGE_SOUND_X, IMAGE_SOUND_Y))
+        
+            
+
 def clear_tab():
     for i in range(4):
         for j in range(4):
@@ -139,8 +179,6 @@ def check_tab_full():
             if tab[i][j].val == 1 :
                 return False
     return True
-
-
 
 def tab_move_right():
     Test = False
